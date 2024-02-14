@@ -1,0 +1,117 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                               Posh Sessions MT5  |
+//|                                 Copyright © 2022, Forex Robot Easy Team |
+//|                                          https://www.forexroboteasy.com |
+//+------------------------------------------------------------------+
+#property copyright 'Copyright © 2022, Forex Robot Easy Team'
+#property link      'https://www.forexroboteasy.com'
+#property version   '1.00'
+#property description 'Posh Sessions MT5 is a versatile tool that allows traders to customize up to five different trading sessions.'
+
+//+------------------------------------------------------------------+
+//| Custom Session Structure                                         |
+//+------------------------------------------------------------------+
+struct Session
+{
+   datetime start;    // Start time of the session
+   datetime end;      // End time of the session
+   color color;       // Color for session display
+   string name;       // Name for session tracking
+};
+
+//+------------------------------------------------------------------+
+//| Global Variables                                                 |
+//+------------------------------------------------------------------+
+Session sessions[5];  // Array of custom sessions
+
+//+------------------------------------------------------------------+
+//| Custom Session Initialization                                    |
+//+------------------------------------------------------------------+
+void InitSessions()
+{
+   // Session 1
+   sessions[0].start = Time[0] + PeriodSeconds(PERIOD_D1) + TimeSeconds(8, 0, 0);  // Start at 08:00
+   sessions[0].end = Time[0] + PeriodSeconds(PERIOD_D1) + TimeSeconds(16, 0, 0);   // End at 16:00
+   sessions[0].color = clrGreen;
+   sessions[0].name = 'Session 1';
+
+   // Session 2
+   sessions[1].start = Time[0] + PeriodSeconds(PERIOD_D1) + TimeSeconds(16, 0, 0);  // Start at 16:00
+   sessions[1].end = Time[0] + PeriodSeconds(PERIOD_D1) + TimeSeconds(24, 0, 0);   // End at 00:00
+   sessions[1].color = clrRed;
+   sessions[1].name = 'Session 2';
+
+   // ... Add more sessions as needed
+}
+
+//+------------------------------------------------------------------+
+//| Custom Session Display                                           |
+//+------------------------------------------------------------------+
+void DisplaySessions()
+{
+   for(int i = 0; i < ArraySize(sessions); i++)
+   {
+      datetime sessionStart = sessions[i].start;
+      datetime sessionEnd = sessions[i].end;
+      color sessionColor = sessions[i].color;
+
+      // Draw session range on the chart
+      ObjectCreate('SessionRange' + IntegerToString(i), OBJ_RECTANGLE, 0, sessionStart, 0, sessionEnd, 0);
+      ObjectSet('SessionRange' + IntegerToString(i), OBJPROP_COLOR, sessionColor);
+
+      // Display session name
+      ObjectCreate('SessionName' + IntegerToString(i), OBJ_LABEL, 0, 0, 0, 0, 0);
+      ObjectSet('SessionName' + IntegerToString(i), OBJPROP_CORNER, 0);
+      ObjectSet('SessionName' + IntegerToString(i), OBJPROP_XDISTANCE, 20);
+      ObjectSet('SessionName' + IntegerToString(i), OBJPROP_YDISTANCE, 20 + 30*i);
+      ObjectSetText('SessionName' + IntegerToString(i), sessions[i].name, 10, 'Arial', sessionColor);
+
+      // Hide or show sessions based on user preference
+      if(!SessionVisible(i))
+      {
+         ObjectSet('SessionRange' + IntegerToString(i), OBJPROP_HIDDEN, true);
+         ObjectSet('SessionName' + IntegerToString(i), OBJPROP_HIDDEN, true);
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Check if Session is Visible                                      |
+//+------------------------------------------------------------------+
+bool SessionVisible(int sessionIndex)
+{
+   // Implement session visibility logic here
+   // Return true if session is visible, otherwise false
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   InitSessions();
+   DisplaySessions();
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   for(int i = 0; i < ArraySize(sessions); i++)
+   {
+      ObjectDelete('SessionRange' + IntegerToString(i));
+      ObjectDelete('SessionName' + IntegerToString(i));
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Do nothing in OnTick()
+}
